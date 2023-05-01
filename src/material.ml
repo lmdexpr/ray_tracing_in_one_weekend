@@ -1,4 +1,4 @@
-module Directed = struct
+module Oriented = struct
   type vec3 =
     | FrontFace of Vec3.t
     | BackFace  of Vec3.t
@@ -17,10 +17,12 @@ module Hit_record = struct
   type t = {
     t : float;
     p : Point3.t;
-    normal : Directed.vec3;
+    normal : Oriented.vec3;
   }
 
-  let to_t = function { t; _ } -> t
+  let get_t = function { t; _ } -> t
+
+  let create t p normal : t = { t; p; normal }
 end
 
 type t
