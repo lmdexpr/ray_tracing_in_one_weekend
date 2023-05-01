@@ -49,9 +49,8 @@ module List = struct
     if Float.(scalar <= epsilon) then Color.black
     else
       match hit ?t_min ?t_max spheres ray with
-      | Some { t = _; p; normal } ->
-        let normal = Material.Oriented.to_vec3 normal in
-        Vec3.(p + Random.in_hemisphere normal)
+      | Some ({ p; _ } as material) ->
+        Material.unit_vector material
         |> Ray.create ~origin:p 
         |> color ~scalar:(scalar *. 0.5) ?t_min ?t_max spheres
       | None ->
