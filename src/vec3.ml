@@ -1,4 +1,3 @@
-
 type t = float * float * float
 
 let create x y z : t = x, y, z
@@ -31,3 +30,5 @@ let( * ) = cross
 let( *|) s v = scale v s
 
 let map (x, y, z) ~f = f x, f y, f z
+
+let line t a b = (1. -. t) *| a + t *| b
