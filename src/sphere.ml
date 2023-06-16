@@ -3,12 +3,13 @@ open Core
 type t = {
   center : Point3.t;
   radius : float;
+  material : Material.t;
 }
 
-let create center radius : t = { center; radius }
+let create center radius material : t = { center; radius; material }
 
 let hit ?(t_min=0.001) ?(t_max=Float.infinity)
-    ({center; radius}: t)
+    ({center; radius; material}: t)
     ({origin; direction} as ray : Ray.t)
   =
   let oc     = Vec3.(origin - center) in
@@ -23,7 +24,8 @@ let hit ?(t_min=0.001) ?(t_max=Float.infinity)
     let p = ray.@(t) in
     Material.(
       Hit_record.create t p
-      @@ Oriented.of_vec3 ~direction Vec3.((p - center) / radius)
+        (Oriented.of_vec3 ~direction Vec3.((p - center) / radius))
+        material
     )
   in
   if Float.(discriminant <= 0.0) then None
@@ -44,17 +46,20 @@ module List = struct
     in
     List.fold ~init:None ~f spheres
 
-  let rec color ?(scalar=1.0) ?t_min ?t_max spheres ray =
-    let epsilon = 1e-16 in
-    if Float.(scalar <= epsilon) then Color.black
+  let max_depth = 50
+  let rec color ?(depth=0) ?t_min ?t_max spheres ray =
+    if max_depth < depth then Color.black
     else
+      let depth = depth + 1 in
       match hit ?t_min ?t_max spheres ray with
-      | Some ({ p; _ } as material) ->
-        Material.unit_vector material
-        |> Ray.create ~origin:p 
-        |> color ~scalar:(scalar *. 0.5) ?t_min ?t_max spheres
+      | Some record -> begin
+          match Material.scatter ray record with
+          | None                           -> Color.black
+          | Some { scattered; attenuation} ->
+            Vec3.(attenuation * color ~depth ?t_min ?t_max spheres scattered)
+        end
       | None ->
         let _, y_unit_direction, _ = Vec3.normalize ray.direction in
         let t = 0.5 *. (y_unit_direction +. 1.0) in
-        Color.(scale scalar @@ gradation t white blue)
+        Color.(gradation t white blue)
 end

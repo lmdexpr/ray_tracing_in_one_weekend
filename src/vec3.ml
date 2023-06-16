@@ -18,7 +18,7 @@ let scale (x, y, z) s = x *. s, y *. s, z *. s
 let norm_square (x, y, z) = x *. x +. y *. y +. z *. z
 let norm v = sqrt (norm_square v)
 
-let (/) v s = scale v (1. /. s)
+let (/) (x, y, z) s = x /. s, y /. s, z /. s
 
 let normalize v = v / norm v
 
@@ -34,6 +34,8 @@ let( *|) s v = scale v s
 let map (x, y, z) ~f = f x, f y, f z
 
 let line t a b = (1. -. t) *| a + t *| b
+
+let reflect v n = v - Float.(2. * dot v n) *| n
 
 module Random = struct
   let range ~min ~max =

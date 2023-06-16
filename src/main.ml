@@ -7,10 +7,16 @@ let height = int_of_float @@ float width /. Camera.aspect_ratio
 
 let samples_per_pixel = 100
 
-let sphere : Sphere.t = { center = (0.0,    0.0, -1.0); radius = 0.5 }
-let ground : Sphere.t = { center = (0.0, -100.5, -1.0); radius = 100.0 }
+let sphere = Sphere.create (0.0,    0.0, -1.0) 0.5
+    (Material.Lambertian { albedo = Color.create 0.7 0.3 0.3 })
+let ground = Sphere.create (0.0, -100.5, -1.0) 100.0
+    (Material.Lambertian { albedo = Color.create 0.8 0.8 0.0 })
+let metal1 = Sphere.create (1.0,    0.0, -1.0) 0.5
+    (Material.Lambertian { albedo = Color.create 0.8 0.6 0.2 })
+let metal2 = Sphere.create (-1.0,   0.0, -1.0) 0.5
+    (Material.Lambertian { albedo = Color.create 0.8 0.8 0.8 })
 
-let world = [ ground; sphere ]
+let world = [ ground; sphere; metal1; metal2 ]
 
 let jitter x = float x +. Random.float_range 0.0 1.0
 
